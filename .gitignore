@@ -13,3 +13,4 @@ rtl2gds/reports/
 *.cmd
 *.logv
 *.rpt
+sim/results.txt
