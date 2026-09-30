@@ -126,6 +126,18 @@ Run the simulation from the repository root, since the testbench writes
 `sim/results.csv` with a relative path. Generated
 vectors and simulator binaries are git-ignored.
 
+## Simulation in Xilinx Vivado (xsim)
+
+1. Create a project: *Create Project -> RTL Project*, tick *Do not specify sources at this time*, pick any part (e.g. `xc7a35tcpg236-1`; it does not matter for simulation).
+2. *Add Sources -> Add or create design sources*: add all 7 files in `rtl/`.
+3. *Add Sources -> Add or create simulation sources*: add `sim/TB_mult8x8_bw.v`.
+4. In *Sources*, confirm the design top is `mult8x8_bw` and the simulation top is `TB_mult8x8_bw` (right-click -> *Set as Top* if not).
+5. *Flow Navigator -> Run Simulation -> Run Behavioral Simulation*.
+6. In the Tcl console type `run all` (the testbench ends with `$finish`). The console prints `RESULT: PASS - 100% match across all 65536 vectors`.
+7. The CSV is written to `<project>/<project>.sim/sim_1/behav/xsim/results.csv`.
+
+Batch alternative: `vivado -mode batch -source scripts/vivado_sim.tcl` (copies the CSV to `sim/results.csv`).
+
 ## Next steps
 
 This exact multiplier is the reference. The approximate variants will reuse

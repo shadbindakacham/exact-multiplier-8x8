@@ -14,3 +14,6 @@ rtl2gds/reports/
 *.logv
 *.rpt
 sim/results.txt
+vivado_proj/
+*.jou
+*.str

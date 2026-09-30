@@ -6,7 +6,10 @@
 // the RTL product against the reference $signed(a) * $signed(b), and writes one
 // CSV row per combination to sim/results.csv.
 //
-// Run from the repository root (paths are relative):  ./scripts/run_sim.sh
+// Icarus: run from the repository root (./scripts/run_sim.sh) -> sim/results.csv.
+// Vivado xsim: the working directory is the simulation run folder, so
+// sim/results.csv cannot be opened; the file falls back to results.csv in
+// the xsim run directory (<project>.sim/sim_1/behav/xsim/).
 //
 // CSV columns:
 //   a_dec, b_dec          signed decimal inputs (-128..127)
@@ -40,8 +43,9 @@ module TB_mult8x8_bw;
         errors = 0;
 
         fd = $fopen(CSV_PATH, "w");
+        if (fd == 0) fd = $fopen("results.csv", "w");   // fallback for Vivado xsim
         if (fd == 0) begin
-            $display("ERROR: could not open %s for writing (run from the repository root)", CSV_PATH);
+            $display("ERROR: could not open a CSV file for writing");
             $finish;
         end
 
@@ -76,7 +80,7 @@ module TB_mult8x8_bw;
         $display("----------------------------------------------------");
         $display("Total vectors tested : %0d", total);
         $display("Mismatches           : %0d", errors);
-        $display("CSV written to       : %s", CSV_PATH);
+        $display("CSV written to       : results.csv (sim/ if run from repo root, else xsim run dir)");
         if (errors == 0 && total == 65536)
             $display("RESULT: PASS - 100%% match across all 65536 vectors");
         else
