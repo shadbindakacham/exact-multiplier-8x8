@@ -4,7 +4,7 @@ Golden reference model for the 8x8 signed Baugh-Wooley multiplier.
 
 Exhaustively enumerates all 256 x 256 = 65536 signed 8-bit input pairs,
 computes the trivial a*b product with NumPy, and writes a vector file
-consumed by the Verilog testbench (sim/tb_mult8x8_bw.v):
+consumed by the Verilog testbench (sim/TB_mult8x8_bw.v):
 
     <a_bits_hex> <b_bits_hex> <expected_product_hex>
 

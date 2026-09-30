@@ -35,7 +35,7 @@ Block structure:
 
 ```
 rtl/        synthesizable Verilog (top = mult8x8_bw)
-sim/        testbench (tb_mult8x8_bw.v)
+sim/        testbench (TB_mult8x8_bw.v)
 golden/     Python golden model (writes the exhaustive test vectors)
 scripts/    run_sim.sh, error_metrics.py
 rtl2gds/    Genus + Innovus flow (see rtl2gds/README.md)
@@ -76,7 +76,7 @@ rtl/mult8x8_bw.v          <- top
 | Cadence Xcelium         | `xrun -top mult8x8_bw <files>`                            |
 | Vivado                  | *Set as Top* on `mult8x8_bw`, or `set_property top mult8x8_bw [current_fileset]` |
 
-When simulating, the *testbench* (`tb_mult8x8_bw`) is the simulation top and
+When simulating, the *testbench* (`TB_mult8x8_bw`) is the simulation top and
 `mult8x8_bw` is the design under test. When synthesizing, `mult8x8_bw` itself
 is the top.
 
@@ -94,11 +94,12 @@ The script:
 
 1. runs `golden/golden_model.py` to write `golden/vectors.txt`
    (`<a_hex> <b_hex> <expected_hex>` for every signed 8-bit pair),
-2. compiles the RTL and `sim/tb_mult8x8_bw.v` with Icarus Verilog,
-3. runs the simulation; the testbench compares every output to the golden
-   value and dumps raw DUT output to `sim/results.txt`,
-4. runs `scripts/error_metrics.py` to compute ER / MED / NMED from the raw
-   output. For this exact design all error metrics are 0.
+2. compiles the RTL and `sim/TB_mult8x8_bw.v` with Icarus Verilog,
+3. runs the simulation: `TB_mult8x8_bw` sweeps all 256 x 256 signed input
+   pairs, checks each RTL output against `$signed(a) * $signed(b)`, and writes
+   every result to `sim/results.csv`,
+4. runs `scripts/error_metrics.py`, which cross-checks the CSV against the
+   Python golden vectors and computes ER / MED / NMED. For this exact design all error metrics are 0.
 
 Expected output ends with:
 
@@ -108,9 +109,22 @@ Mismatches           : 0
 RESULT: PASS - 100% match across all 65536 vectors
 ```
 
-Run the simulation from the repository root, since the testbench opens
-`golden/vectors.txt` and `sim/results.txt` with relative paths. The generated
-files are git-ignored.
+### CSV output (`sim/results.csv`)
+
+One row per input pair (65536 rows plus a header):
+
+```
+a_dec,b_dec,a_hex,b_hex,rtl_dec,rtl_hex,expected_dec,error,status
+-128,-128,80,80,16384,4000,16384,0,PASS
+```
+
+`error` is `rtl_dec - expected_dec` and `status` is `PASS`/`FAIL`. The file is
+committed as the reference result for the exact multiplier and is overwritten
+on every run.
+
+Run the simulation from the repository root, since the testbench writes
+`sim/results.csv` with a relative path. Generated
+vectors and simulator binaries are git-ignored.
 
 ## Next steps
 

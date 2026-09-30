@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Regenerate golden vectors and run the exhaustive 65536-vector simulation.
+# Regenerate golden vectors, run the exhaustive 65536-vector simulation (writes
+# sim/results.csv) and cross-check the CSV against the Python golden model.
 # Usage: ./scripts/run_sim.sh   (run from anywhere; cds into the project root)
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -14,7 +15,7 @@ iverilog -g2012 -Wall -o sim/mult8x8_bw.vvp \
   rtl/cla_adder_20.v \
   rtl/bw_pp_gen.v \
   rtl/mult8x8_bw.v \
-  sim/tb_mult8x8_bw.v
+  sim/TB_mult8x8_bw.v
 
 vvp sim/mult8x8_bw.vvp
 

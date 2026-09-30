@@ -2,9 +2,9 @@
 """
 Error-metric harness for the 8x8 signed multiplier.
 
-Reads golden/vectors.txt (a, b, expected) and sim/results.txt (a, b, got —
-dumped by tb_mult8x8_bw.v for every vector, independent of its own
-pass/fail check) and computes, per Liang/Han/Lombardi, "New Metrics for
+Reads golden/vectors.txt (a, b, expected; from the Python model) and
+sim/results.csv (RTL output for every vector, dumped by TB_mult8x8_bw.v
+independently of its own pass/fail check) and computes, per Liang/Han/Lombardi, "New Metrics for
 the Reliability of Approximate and Probabilistic Adders" (IEEE TC 2013,
 multiplier_refrences/15_*.pdf):
 
@@ -23,10 +23,11 @@ the point of running this now: it validates the metric harness itself
 before it's pointed at the approximate variant, where these numbers
 will actually be nonzero and meaningful.
 """
+import csv
 from pathlib import Path
 
 VECTORS_PATH = Path(__file__).parent.parent / "golden" / "vectors.txt"
-RESULTS_PATH = Path(__file__).parent.parent / "sim" / "results.txt"
+RESULTS_PATH = Path(__file__).parent.parent / "sim" / "results.csv"
 
 D = 128 * 128  # max |exact product| for signed 8x8 multiplication (2^14)
 
@@ -47,10 +48,10 @@ def main():
     errors = 0
     sum_ed = 0
 
-    with open(RESULTS_PATH) as f:
-        for line in f:
-            a, b, got = line.split()
-            got_val = to_signed16(got)
+    with open(RESULTS_PATH, newline="") as f:
+        for row in csv.DictReader(f):
+            a, b = row["a_hex"], row["b_hex"]
+            got_val = to_signed16(row["rtl_hex"])
             exp_val = expected[(a, b)]
 
             ed = abs(got_val - exp_val)
@@ -60,7 +61,7 @@ def main():
             total += 1
 
     assert total == len(expected), (
-        f"results.txt has {total} vectors, golden has {len(expected)} - "
+        f"results.csv has {total} vectors, golden has {len(expected)} - "
         "did run_sim.sh finish cleanly?"
     )
 
